@@ -14,7 +14,7 @@ B1_FILE = '20200709012000-P1S-ABOM_BRF_B01-PRJ_GEOS141_1000-HIMAWARI8-AHI.nc'
 B2_FILE = '20200709012000-P1S-ABOM_BRF_B02-PRJ_GEOS141_1000-HIMAWARI8-AHI.nc'
 B3_FILE = '20200709012000-P1S-ABOM_BRF_B03-PRJ_GEOS141_1000-HIMAWARI8-AHI.nc'
 
-from datetime import datetime
+import dateutil.parser
 from pathlib import Path
 import xarray
 import numpy as np
@@ -24,9 +24,7 @@ B1 = xarray.load_dataset(Path('~').expanduser() / 'data' / 'himawari' / B1_FILE)
 B2 = xarray.load_dataset(Path('~').expanduser() / 'data' / 'himawari' / B2_FILE)
 B3 = xarray.load_dataset(Path('~').expanduser() / 'data' / 'himawari' / B3_FILE)
 
-#print(B1)
-
-time_end = datetime.strptime(B1.time_coverage_end, '%Y%m%dT%H%M%SZ')
+time_end = dateutil.parser.isoparse(B1.time_coverage_end)
 
 R = np.squeeze(B3['channel_0003_brf'].data, axis=0)
 G = np.squeeze(B2['channel_0002_brf'].data, axis=0)
@@ -73,4 +71,4 @@ RGB_contrast = contrast_correction(RGB, contrast_amount)
 im = Image.fromarray((RGB_contrast * 255).astype(np.uint8))
 
 Path.mkdir(Path('~').expanduser() / 'images', exist_ok=True)
-im.save(Path('~').expanduser() / 'images' / '{}_RGB_{}.jpg'.format(B1.wmo_platform_name, time_end.strftime('%Y-%m-%d_%I.%M.%S_%p')), quality=95, subsampling=0)
+im.save(Path('~').expanduser() / 'images' / '{}_RGB_{}.jpg'.format(B1.wmo_platform_name, time_end.strftime('%Y-%m-%d_%I.%M.%S_%p_%Z')), quality=95, subsampling=0)

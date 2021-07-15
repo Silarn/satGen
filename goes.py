@@ -11,6 +11,7 @@
 ##
 
 from datetime import datetime
+import dateutil.parser
 from pathlib import Path
 import xarray
 import numpy as np
@@ -29,7 +30,7 @@ file = Path('~').expanduser() / 'data' / file.at[0, 'file']
 
 F = xarray.load_dataset(file)
 
-file_created = datetime.strptime(F.date_created, '%Y-%m-%dT%H:%M:%S.%fZ')
+file_created = dateutil.parser.isoparse(F.date_created)
 
 R = F['CMI_C02'].data
 G = F['CMI_C03'].data
@@ -75,4 +76,4 @@ RGB_contrast = contrast_correction(RGB, contrast_amount)
 im = Image.fromarray((RGB_contrast * 255).astype(np.uint8))
 
 Path.mkdir(Path('~').expanduser() / 'images', exist_ok=True)
-im.save(Path('~').expanduser() / 'images' / '{}_{}_RGB_{}.jpg'.format(F.orbital_slot, F.scene_id, file_created.strftime('%Y-%m-%d_%I.%M.%S_%p')), quality=95, subsampling=0)
+im.save(Path('~').expanduser() / 'images' / '{}_{}_RGB_{}.jpg'.format(F.orbital_slot, F.scene_id.replace(' ', '_'), file_created.strftime('%Y-%m-%d_%I.%M.%S_%p_%Z')), quality=95, subsampling=0)
